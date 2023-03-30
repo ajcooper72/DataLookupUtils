@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>package_private</access>
+        <active>true</active>
+        <api_name>global.DataLookupAjax</api_name>
+        <caller_access/>
+        <client_callable>true</client_callable>
+        <description/>
+        <name>DataLookupAjax</name>
+        <script><![CDATA[var DataLookupAjax = Class.create();
+DataLookupAjax.prototype = Object.extendsObject(global.AbstractAjaxProcessor, {
+
+    /*
+     * assumes a set of parameters are passed with the following format
+     * sysparm_key_1, sysparm_key_2, sysparm_key_3 etc
+     * other parameters
+     * sysparm_table_name [required] name of the data lookup table
+     * sysparm_key_columns [optional] comma seperated list of columns to override default
+	 * sysparm_use_column_order [optional] boolean, if true then sort the column data otherwise use the 'order' field
+     * these are then mapped onto DataLookup API
+     */
+    getLookupData: function() {
+        try {
+            var paramIdx = 1;
+            var keys = [];
+            while (paramIdx) {
+                var param = this.getParameter("sysparm_key_" + paramIdx++);
+                if (param) {
+                    keys.push(param);
+                } else {
+                    break;
+                }
+            }
+            var tableName = this.getParameter('sysparm_table_name');
+			var sortColumns = this.getParameter('sysparm_use_column_order') || 'false';
+			
+            var dlLib = new global.DataLookupUtils(tableName, sortColumns == 'true');
+
+			// check to see if we're overriding the columns used for key matching
+            var columnOverride = this.getParameter('sysparm_key_columns');
+            if (columnOverride && columnOverride != '') {
+                dlLib.setColumns((columnOverride += '').split(','));
+            }
+
+            return JSON.stringify(dlLib.getLookupData(keys));
+        } catch (e) {
+            return JSON.stringify([]);
+        }
+
+    },
+
+    type: 'DataLookupAjax'
+});]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2023-03-29 15:26:56</sys_created_on>
+        <sys_id>f9348f7a1bf56110c5ba97d7bd4bcb59</sys_id>
+        <sys_mod_count>23</sys_mod_count>
+        <sys_name>DataLookupAjax</sys_name>
+        <sys_package display_value="Data Lookup Utils" source="d5f34f7a1bf56110c5ba97d7bd4bcb26">d5f34f7a1bf56110c5ba97d7bd4bcb26</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Data Lookup Utils">d5f34f7a1bf56110c5ba97d7bd4bcb26</sys_scope>
+        <sys_update_name>sys_script_include_f9348f7a1bf56110c5ba97d7bd4bcb59</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2023-03-30 08:01:33</sys_updated_on>
+    </sys_script_include>
+</record_update>
